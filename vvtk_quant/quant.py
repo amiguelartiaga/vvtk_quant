@@ -244,7 +244,7 @@ def calibrate_quant_v3(model, qkeys=None, b=8, csv=None):
      
     #read csv
     df = pd.read_csv(csv)
-    p_ = sorted(df['values'].tolist())
+    p_ = sorted(df['value'].tolist())
     print(p_) 
     edge_dict = {}
     for key in state_dict.keys():    
