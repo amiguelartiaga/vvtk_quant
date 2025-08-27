@@ -1,6 +1,7 @@
 
-import cbitstruct as bs                # C-accelerated bitstruct clone
 
+import cbitstruct as bs                # C-accelerated bitstruct clone
+    
 # (Optional) tiny cache so we only parse/compile a format once
 _fmt_cache: dict[tuple[int, int], bs.CompiledFormat] = {}
 

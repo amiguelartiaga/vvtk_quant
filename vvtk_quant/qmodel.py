@@ -1,7 +1,10 @@
 import torch
 from .quant import calibrate_quant_v0, calibrate_quant_v1, calibrate_quant_v2, calibrate_quant_v3, quant
 from .utils import fuse_all_conv_bn, module_types_to_param_keys
-from .io import pack, unpack
+try:
+    from .io import pack, unpack
+except:
+    pass
 import gzip, pickle
 import numpy as np
 
