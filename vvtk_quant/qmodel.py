@@ -1,5 +1,5 @@
 import torch
-from .quant import calibrate_quant_v0, calibrate_quant_v1, calibrate_quant_v2, quant
+from .quant import calibrate_quant_v0, calibrate_quant_v1, calibrate_quant_v2, calibrate_quant_v3, quant
 from .utils import fuse_all_conv_bn, module_types_to_param_keys
 from .io import pack, unpack
 import gzip, pickle
@@ -28,7 +28,7 @@ class VVTK_QModel(torch.nn.Module):
     def fuse_conv_bn(self, verbose=False):
         self.model = fuse_all_conv_bn(self.model, verbose=verbose)
         
-    def calibrate_quant(self, v=1, b=None, K=None):
+    def calibrate_quant(self, v=1, b=None, K=None, csv=None):
         self.b = b if b is not None else self.b
         assert self.b is not None, "Bit width 'b' must be specified for quantization."   
         if v==0:            
@@ -37,6 +37,10 @@ class VVTK_QModel(torch.nn.Module):
             self.edge_dict = calibrate_quant_v1(self.model, qkeys=self.qkeys, b=self.b)
         elif v==2:
             self.edge_dict = calibrate_quant_v2(self.model, qkeys=self.qkeys, b=self.b, K=K)
+        elif v==3:
+            self.edge_dict = calibrate_quant_v3(self.model, qkeys=self.qkeys, b=self.b, csv=csv)
+        
+        
         print(f"Quantization edges calibrated with version {v}, bit width {self.b}, edge dictionary size: {len(self.edge_dict)}.")
 
     def apply_quant(self): 

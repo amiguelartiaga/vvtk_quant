@@ -3,6 +3,7 @@ import numpy as np
 import numpy as np
 from collections import defaultdict
 from sklearn.cluster import KMeans
+import pandas as pd
 
 def quant(x, levels):
     distance = (x[..., None] - levels).abs()          # shape: (*sig_shape, n_levels)
@@ -225,3 +226,30 @@ def calibrate_quant_v2(model, qkeys=None, b=8, K=8,
     
     return edge_dict
 
+def calibrate_quant_v3(model, qkeys=None, b=8, csv=None):
+    """
+    Static quantization function for a model. Single quantization edge for all parameters.
+
+    Args:
+        model (nn.Module): The model to be quantized.
+        b (int): Bit-width for quantization (default is 8).
+        csv: Path to a CSV file for saving quantization edges (default is None).
+    Returns:
+        edge_dict (dict): Dictionary containing quantization edges for each layer.
+    """    
+    state_dict = model.state_dict()    
+    if qkeys is None:
+        qkeys = [k for k in state_dict.keys() if 
+            any(param_name in k for param_name in ['weight', 'bias'])]  
+     
+    #read csv
+    df = pd.read_csv(csv)
+    p_ = sorted(df['values'].tolist())
+    print(p_) 
+    edge_dict = {}
+    for key in state_dict.keys():    
+        if not key in qkeys:
+            continue        
+        edge_dict[key] = p_
+    
+    return edge_dict
