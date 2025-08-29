@@ -278,7 +278,7 @@ def calibrate_quant_v4(model, qkeys=None, b=8, csv=None):
             p = param.data.cpu().numpy().flatten()             
             p_ += p.tolist()
                 
-    h, x = np.histogram(p_, bins=1024)
+    h, x = np.histogram(p_, bins=2048)
     prob =  h/(np.sum(h)+1e-3)
     e = equal_probability_bins(prob,x=x[1:], k=2**b)
       
