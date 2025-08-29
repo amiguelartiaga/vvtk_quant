@@ -278,7 +278,7 @@ def calibrate_quant_v4(model, qkeys=None, b=8, csv=None):
             p = param.data.cpu().numpy().flatten()             
             p_ += p.tolist()
                 
-    h, x = np.histogram(p_, bins=512)
+    h, x = np.histogram(p_, bins=1024)
     prob =  h/(np.sum(h)+1e-3)
     e = equal_probability_bins(prob,x=x[1:], k=2**b)
       
@@ -288,11 +288,7 @@ def calibrate_quant_v4(model, qkeys=None, b=8, csv=None):
             continue        
         edge_dict[key] = e[1:]
     
-    # write e[:1] as 'value' in pandas df, file: csv
-
-    # df = pd.DataFrame({'value': e[1:]})
-    # df.to_csv(csv, index=False)
-
+    # write pandas df, file: csv
     values = e[1:]
     # Build table
     rows = []
@@ -315,7 +311,7 @@ def calibrate_quant_v4(model, qkeys=None, b=8, csv=None):
 
     df = pd.DataFrame(rows, columns=["idx","value","code","hex","bits","sign","exp","mant","decoded","abs_err"])
     df.to_csv(csv, index=False)
-    print(df)
+    # print(df)
 
     return edge_dict
     
