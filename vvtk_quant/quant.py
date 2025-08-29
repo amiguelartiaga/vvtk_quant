@@ -290,8 +290,32 @@ def calibrate_quant_v4(model, qkeys=None, b=8, csv=None):
     
     # write e[:1] as 'value' in pandas df, file: csv
 
-    df = pd.DataFrame({'value': e[1:]})
+    # df = pd.DataFrame({'value': e[1:]})
+    # df.to_csv(csv, index=False)
+
+    values = e[1:]
+    # Build table
+    rows = []
+    for idx, val in enumerate(values):
+        code = idx if val >= 0 else (len(values) - idx - 1)  # you may tweak mapping
+        bits = format(code, "04b")   # 4-bit binary
+        hex_code = hex(code)
+        
+        # Extract fields (toy scheme matching your example)
+        sign = int(bits[0])          # first bit
+        exp  = int(bits[1:3], 2)     # next 2 bits
+        mant = int(bits[3], 2)       # last bit
+        
+        # Decoding rule (same as your table)
+        decoded = (-1)**sign * (1 + mant/2) * (2**exp if exp>0 else 0) if val != 0 else 0.0
+        
+        abs_err = abs(val - decoded)
+        
+        rows.append([idx, val, code, hex_code, bits, sign, exp, mant, decoded, abs_err])
+
+    df = pd.DataFrame(rows, columns=["idx","value","code","hex","bits","sign","exp","mant","decoded","abs_err"])
     df.to_csv(csv, index=False)
+    print(df)
 
     return edge_dict
     
