@@ -1,5 +1,5 @@
 import torch
-from .quant import calibrate_quant_v0, calibrate_quant_v1, calibrate_quant_v2, calibrate_quant_v3, quant
+from .quant import calibrate_quant_v0, calibrate_quant_v1, calibrate_quant_v2, calibrate_quant_v3,calibrate_quant_v4, quant
 from .utils import fuse_all_conv_bn, module_types_to_param_keys
 try:
     from .io import pack, unpack
@@ -42,6 +42,8 @@ class VVTK_QModel(torch.nn.Module):
             self.edge_dict = calibrate_quant_v2(self.model, qkeys=self.qkeys, b=self.b, K=K)
         elif v==3:
             self.edge_dict = calibrate_quant_v3(self.model, qkeys=self.qkeys, b=self.b, csv=csv)
+        elif v==4:
+            self.edge_dict = calibrate_quant_v4(self.model, qkeys=self.qkeys, b=self.b, csv=csv)
         
         
         print(f"Quantization edges calibrated with version {v}, bit width {self.b}, edge dictionary size: {len(self.edge_dict)}.")

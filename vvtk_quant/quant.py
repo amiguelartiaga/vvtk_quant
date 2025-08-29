@@ -253,3 +253,45 @@ def calibrate_quant_v3(model, qkeys=None, b=8, csv=None):
         edge_dict[key] = p_
     
     return edge_dict
+
+
+def calibrate_quant_v4(model, qkeys=None, b=8, csv=None):
+    """
+    Static quantization function for a model. Single quantization edge for all parameters.
+
+    Args:
+        model (nn.Module): The model to be quantized.
+        b (int): Bit-width for quantization (default is 8).
+        csv: Path to a CSV file for saving quantization edges (default is None).
+        
+    Returns:
+        edge_dict (dict): Dictionary containing quantization edges for each layer.
+    """    
+    state_dict = model.state_dict()    
+    if qkeys is None:
+        qkeys = [k for k in state_dict.keys() if 
+            any(param_name in k for param_name in ['weight', 'bias'])]  
+     
+    p_ = []    
+    for key, param in state_dict.items():
+        if key in qkeys:
+            p = param.data.cpu().numpy().flatten()             
+            p_ += p.tolist()
+                
+    h, x = np.histogram(p_, bins=512)
+    prob =  h/(np.sum(h)+1e-3)
+    e = equal_probability_bins(prob,x=x[1:], k=2**b)
+      
+    edge_dict = {}
+    for key in state_dict.keys():    
+        if not key in qkeys:
+            continue        
+        edge_dict[key] = e[1:]
+    
+    # write e[:1] as 'value' in pandas df, file: csv
+
+    df = pd.DataFrame({'value': e[1:]})
+    df.to_csv(csv, index=False)
+
+    return edge_dict
+    
