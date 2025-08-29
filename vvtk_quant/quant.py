@@ -226,7 +226,7 @@ def calibrate_quant_v2(model, qkeys=None, b=8, K=8,
     
     return edge_dict
 
-def calibrate_quant_v3(model, qkeys=None, b=8, csv=None):
+def calibrate_quant_v3(model, qkeys=None, b=8, scale=1.0, csv=None):
     """
     Static quantization function for a model. Single quantization edge for all parameters.
 
@@ -245,7 +245,10 @@ def calibrate_quant_v3(model, qkeys=None, b=8, csv=None):
     #read csv
     df = pd.read_csv(csv)
     p_ = sorted(df['value'].tolist())
-    print(p_) 
+    
+    print('before scale:', p_)
+    p_ = [scale * v for v in p_]    
+    print('after scale:', p_)
     edge_dict = {}
     for key in state_dict.keys():    
         if not key in qkeys:
